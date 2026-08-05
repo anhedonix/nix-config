@@ -18,4 +18,4 @@ echo "  user:  ${USERNAME}"
 echo "  host:  ${HOSTNAME}"
 echo "  flake: ${FLAKE_REF}"
 
-exec sudo nixos-rebuild switch --impure --flake "${FLAKE_REF}"
+sudo exec sudo nixos-rebuild switch --impure --flake "${FLAKE_REF}"
