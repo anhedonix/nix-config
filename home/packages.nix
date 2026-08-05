@@ -17,6 +17,7 @@
       tree # directory tree listing
       ripgrep # fast recursive search
       zoxide # smarter cd
+      eza # modern ls (used by shell aliases)
 
       # --- Git & GitHub ---
       gh # GitHub CLI
