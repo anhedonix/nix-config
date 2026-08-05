@@ -41,11 +41,33 @@ After the first successful switch, shell aliases `sdr` (macOS) and `snr` (Linux)
 
 ## What's Included
 
-**Shared (Home Manager):** mise, Zsh + Starship, CLI tools (curl, neovim, tmux, eza, ripgrep, gh, zoxide, …), git + SSH signing, fonts.
+**Shared (Home Manager):** mise, Zsh + Starship, CLI tools (curl, neovim, tmux, eza, bat, ripgrep, gh, zoxide, …), git + SSH signing, fonts, and out-of-store symlinked dotfiles (nvim, Doom, Zed, gh, lazygit, fish/bash, containers.conf).
 
-**macOS:** nix-darwin system settings, declarative Homebrew GUIs, Podman Desktop + `podman` CLI via Homebrew.
+**macOS:** nix-darwin system settings, declarative Homebrew GUIs, Podman Desktop + `podman` CLI via Homebrew, Karabiner + Cursor settings symlinks.
 
 **NixOS:** Podman engine (`dockerCompat`), Flatpak, Podman Desktop from Flathub (`io.podman_desktop.PodmanDesktop`).
+
+## Dotfiles
+
+Configs live under [`home/dotfiles/`](home/dotfiles/) and are linked into `$HOME` / `~/.config` by [`home/dotfiles.nix`](home/dotfiles.nix) via `mkOutOfStoreSymlink`.
+
+**Clone path must be** `~/Documents/GitHub/nix-config` — symlink targets are absolute paths under that checkout. Edit files in the repo; they apply immediately (no rebuild) for linked configs. Run a switch after adding or changing symlink wiring in Nix.
+
+| Managed | Target |
+|---------|--------|
+| Doom Emacs user config | `~/.config/doom` |
+| Neovim | `~/.config/nvim` |
+| Zed settings | `~/.config/zed/settings.json` |
+| GitHub CLI | `~/.config/gh/{config,hosts}.yml` |
+| lazygit | `~/.config/lazygit/config.yml` |
+| fish / bash / profile | `~/.config/fish/...`, `~/.bashrc`, `~/.bash_profile`, `~/.profile` |
+| Podman containers.conf | `~/.config/containers/containers.conf` |
+| Karabiner (macOS) | `~/.config/karabiner/karabiner.json` |
+| Cursor settings (macOS) | `~/Library/Application Support/Cursor/User/settings.json` |
+
+Shell, git, mise, and Starship stay as native Home Manager options (not file copies from the old `~/dotfiles` tree). After a successful switch you can retire `~/dotfiles`.
+
+**First switch:** Home Manager refuses to overwrite existing non-HM files. Back up or remove conflicting paths (e.g. `~/.config/zed`, `~/.config/gh`, `~/.config/karabiner`, `~/.config/doom` if they are not already HM-managed) before applying.
 
 ## Project Structure
 
@@ -58,6 +80,7 @@ nix-config/
 ├── darwin/                        # macOS system modules + Homebrew
 ├── nixos/                         # NixOS system modules + Podman/Flatpak
 ├── home/                          # Shared Home Manager modules
+│   └── dotfiles/                  # Symlinked configs (nvim, doom, zed, …)
 └── hosts/
     ├── macpro-m2/                 # Mac host
     └── tp14s/                     # NixOS host (+ hardware placeholder)
@@ -68,6 +91,7 @@ nix-config/
 | Change | Where |
 |--------|--------|
 | CLI tools | [`home/packages.nix`](home/packages.nix) |
+| Symlinked configs | [`home/dotfiles/`](home/dotfiles/) + [`home/dotfiles.nix`](home/dotfiles.nix) |
 | Mac GUI apps | [`darwin/homebrew.nix`](darwin/homebrew.nix) |
 | Dev runtimes (mise) | [`home/mise.nix`](home/mise.nix) |
 | Mac host extras | [`hosts/macpro-m2/configuration.nix`](hosts/macpro-m2/configuration.nix) |
@@ -79,6 +103,8 @@ nix-config/
 - **Unknown flake attr:** hostname must match an output in `flake.nix` (`macpro-m2` or `tp14s`).
 - **NixOS hardware:** replace the placeholder `hardware-configuration.nix` before a real install.
 - **Leftover Docker Desktop / Colima on Mac:** after switching to Podman, uninstall any non-Brew leftovers manually if Homebrew cleanup did not remove them.
+- **Dotfile symlink conflicts:** remove or rename existing target files/dirs, then re-run the switch script.
+- **Broken out-of-store links:** ensure the repo is checked out at `~/Documents/GitHub/nix-config`.
 
 ## Credits
 

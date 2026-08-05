@@ -1,0 +1,459 @@
+#+TITLE: Anand Magaji Doom Emacs Config
+#+AUTHOR: Anand Maagji
+#+STARTUP: content indent
+
+* Basic
+#+begin_src emacs-lisp :tangle no
+;; Here are some additional functions/macros that could help you configure Doom:
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
+;;
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;;
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
+#+end_src
+** Name
+#+begin_src emacs-lisp
+
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets.
+
+(setq user-full-name "Anand Magaji"
+      user-mail-address "anand@eosacro.com")
+
+#+end_src
+
+** Font
+
+#+begin_src emacs-lisp :tangle no
+
+;; Get a list of available fonts
+(dolist (font (x-list-fonts "*"))
+  (insert (format ";; %s\n" font))
+)
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src emacs-lisp
+
+;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
+;; are the three important ones:
+;;
+;; + `doom-font'
+;; + `doom-variable-pitch-font'
+;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;;   presentations or streaming.
+;;
+;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
+;; font string. You generally only need these two:
+(setq
+      doom-font (font-spec :family "Source Code Pro" :size 16)
+      doom-unicode-font (font-spec :family "Source Code Pro")
+      ;; doom-variable-pitch-font (font-spec :family "Cantarell" :size 16)
+    )
+
+#+end_src
+** Startup Window size
+
+#+begin_src emacs-lisp
+(when (or window-system (daemonp))
+  (setq default-frame-alist '(
+                              (width . 120)
+                              (height . 60)
+                              ))
+  ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  )
+#+end_src
+** Visual Changes
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)
+
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+
+;; (menu-bar-mode -1)            ; Disable the menu bar
+
+;; Remove visual bell on MacOS
+(setq visible-bell nil)
+
+;; UTF-8 as default encoding
+(set-language-environment "utf-8")
+(prefer-coding-system 'utf-8)
+(setq coding-system-for-read 'utf-8)
+(setq coding-system-for-write 'utf-8)
+(set-default-coding-systems 'utf-8)
+(setq fancy-splash-image (concat doom-private-dir "eo_banner.png"))
+
+
+(add-hook! '+doom-dashboard-functions :append
+  (insert "\n" (+doom-dashboard--center +doom-dashboard--width "Anand Magaji - Magaji.dev")))
+;; set transparency
+;; (set-frame-parameter (selected-frame) 'alpha '(80 80))
+;; (add-to-list 'default-frame-alist '(alpha 80 80))
+#+end_src
+** Theme
+
+#+begin_src emacs-lisp
+
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+;; (setq doom-theme 'doom-one)
+
+;; (use-package doom-themes
+;;   :init (load-theme 'doom-gruvbox t))
+
+;; A nice theme that I seem to like and its default settings
+;; Requires Roboto nerd font
+;; (load-theme 'nano-dark t)
+;; (nano-setup)
+
+(setq modus-themes-italic-constructs t
+      modus-themes-bold-constructs t
+      modus-themes-mixed-fonts t
+      modus-themes-subtle-line-numbers t
+      modus-themes-intense-markup nil
+      modus-themes-deuteranopia nil
+      modus-themes-tabs-accented t
+      modus-themes-variable-pitch-ui t
+      modus-themes-inhibit-reload t ; only applies to `customize-set-variable' and related
+
+      ;; modus-themes-fringes 'subtle  ; {nil,'subtle,'intense}
+
+      ;; Options for `modus-themes-lang-checkers' are either nil (the
+      ;; default), or a list of properties that may include any of those
+      ;; symbols: `straight-underline', `text-also', `background',
+      ;; `intense' OR `faint'.
+      modus-themes-lang-checkers (quote (faint text-also background))
+
+      ;; Options for `modus-themes-mode-line' are either nil, or a list
+      ;; that can combine any of `3d' OR `moody', `borderless',
+      ;; `accented', and a natural number for extra padding
+      modus-themes-mode-line '(borderless)
+
+      ;; Options for `modus-themes-syntax' are either nil (the default),
+      ;; or a list of properties that may include any of those symbols:
+      ;; `faint', `yellow-comments', `green-strings', `alt-syntax'
+      ;; modus-themes-syntax '(alt-syntax green-strings yellow-comments)
+      modus-themes-syntax nil
+
+      ;; Options for `modus-themes-hl-line' are either nil (the default),
+      ;; or a list of properties that may include any of those symbols:
+      ;; `accented', `underline', `intense'
+      ;; modus-themes-hl-line '(underlined)
+      modus-themes-hl-line nil
+
+      ;; Options for `modus-themes-paren-match' are either nil (the
+      ;; default), or a list of properties that may include any of those
+      ;; symbols: `bold', `intense', `underline'
+      modus-themes-paren-match '(intense underline)
+
+      ;; Options for `modus-themes-links' are either nil (the default),
+      ;; or a list of properties that may include any of those symbols:
+      ;; `neutral-underline' OR `no-underline', `faint' OR `no-color',
+      ;; `bold', `italic', `background'
+      modus-themes-links '(neutral-underline background)
+
+      ;; Options for `modus-themes-prompts' are either nil (the
+      ;; default), or a list of properties that may include any of those
+      ;; symbols: `background', `bold', `gray', `intense', `italic'
+      modus-themes-prompts '(intense bold)
+
+      ;; modus-themes-completions 'moderate ; {nil,'moderate,'opinionated}
+
+      modus-themes-mail-citations nil ; {nil,'faint,'monochrome}
+
+      ;; Options for `modus-themes-region' are either nil (the default),
+      ;; or a list of properties that may include any of those symbols:
+      ;; `no-extend', `bg-only', `accented'
+      modus-themes-region '(bg-only no-extend)
+
+      ;; Options for `modus-themes-diffs': nil, 'desaturated, 'bg-only
+      modus-themes-diffs 'desaturated
+
+      modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+
+      modus-themes-org-agenda ; this is an alist: read the manual or its doc string
+      '((header-block . (variable-pitch 1.3))
+        (header-date . (grayscale workaholic bold-today 1.1))
+        (event . (accented varied))
+        (scheduled . uniform)
+        (habit . traffic-light))
+
+      modus-themes-headings ; this is an alist: read the manual or its doc string
+      '((1 . (rainbow))
+        (2 . (rainbow))
+        (3 . (rainbow))
+        (4 . (rainbow))
+        (5 . (rainbow))
+        (6 . (rainbow))
+        (7 . (rainbow))
+        (8 . (rainbow))
+        (t . (semibold))))
+
+(load-theme 'modus-vivendi :no-confirm)
+;; (load-theme 'modus-vivendi-tinted :no-confirm)
+;; (modus-themes-load-vivendi) ;; OR (modus-themes-load-operandi)
+#+end_src
+** Display
+
+#+begin_src emacs-lisp
+
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type 'relative)
+
+#+end_src
+** Emacs Confirm on quit
+
+#+begin_src emacs-lisp
+  (setq confirm-kill-emacs nil)
+#+end_src
+* Editor
+
+** Tab Widths
+#+begin_src emacs-lisp
+(setq-default tab-width 2)
+(setq-default evil-shift-width tab-width)
+#+end_src
+** Scroll Margin
+#+begin_src emacs-lisp
+  (setq scroll-margin 3)
+#+end_src
+
+** Use spaces instead of tabs for indentation
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+#+end_src
+
+** Modeline
+#+begin_src emacs-lisp
+(setq doom-modeline-height 16
+      doom-modeline-bar-width 6
+      doom-modeline-lsp t
+      doom-modeline-github t
+      doom-modeline-env-version t
+      doom-modeline-mu4e nil
+      doom-modeline-irc nil
+      doom-modeline-minor-modes nil
+      doom-modeline-persp-name t
+      doom-modeline-buffer-encoding t
+      doom-modeline-indent-info t
+      doom-modeline-buffer-file-name-style 'truncate-except-project
+      doom-modeline-major-mode-icon t)
+
+;; (nano-modeline-mode)
+#+end_src
+
+** Pretty Symboles
+#+begin_src emacs-lisp
+  (setq prettify-symbols-unprettify-at-point 'right-edge)
+  (setq web-mode-prettify-symbols-alist
+        '(
+          ("&&"       . "∧")
+          ("||"       . "∨")
+          ("() =>"    . "▶")
+          ("=>"       . "▷")
+          ("const"    . "ɣ")
+          ("export"   . "↗")
+          ("from"     . "←")
+          ("function" . "⌿")
+          ("import"   . "◀")
+          ("props"    . "θ")
+          ("return"   . "⤾")
+          ("false"    . "╳")
+          ("true"     . "✓")
+          ("React"     . "Ω")
+          ("private"     . "ϼ")
+          ("public"     . "ρ")
+          ("this"     . "τ")
+          ))
+  ;; (global-prettify-symbols-mode +1)
+#+end_src
+** Global auto revert mode - load files on change
+#+begin_src emacs-lisp
+(global-auto-revert-mode 1)
+#+end_src
+* Coding
+** LSP
+#+begin_src emacs-lisp
+(setq
+      company-backend                   'company-capf
+      lsp-auto-configure                t
+      lsp-completion-enable             t
+      lsp-completion-provider           :capf
+      lsp-completion-show-kind          t
+      lsp-diagnostics-provider          :flymake
+      lsp-enable-folding                t
+      lsp-enable-indentation            nil
+      lsp-enable-on-type-formatting     nil
+      lsp-enable-snippet                t
+      lsp-enable-symbol-highlighting    t
+      lsp-enable-text-document-color    t
+      lsp-enable-which-key-integration  t
+      lsp-headerline-breadcrumb-enable  t
+      lsp-keymap-prefix                 "C-c l"
+      lsp-lens-enable                   t
+      lsp-log-io                        nil  ;; dont log everything = speed
+      lsp-restart                       'auto-restart
+      lsp-typescript-format-enable      nil
+      lsp-javascript-format-enable      nil
+      +format-with-lsp                  nil  ;; disable auto-formatting using lsp, causing issues in lsp-mode
+      lsp-eslint-enable                 t
+      lsp-eslint-auto-fix-on-save       t
+      )
+
+(setq
+      lsp-ui-doc-enable                 t
+      lsp-ui-doc-position               'bottom
+      lsp-ui-doc-show-with-cursor       nil
+      lsp-ui-peek-enable                t
+      lsp-ui-sideline-delay             0.1
+      lsp-ui-sideline-enable            t
+      lsp-ui-sideline-ignore-duplicate  t
+      lsp-ui-sideline-show-code-actions t
+      lsp-ui-sideline-show-diagnostics  t
+      lsp-ui-sideline-show-hover        t
+      lsp-ui-sideline-show-symbol       t)
+
+(setq lsp-tailwindcss-add-on-mode t)
+
+(add-hook 'web-mode-hook #'lsp-deferred)
+
+(with-eval-after-load 'lsp-mode
+                      (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
+                      (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
+                      (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]node_modules\\'"))
+#+end_src
+** Company Box
+#+begin_src emacs-lisp
+;; (add-hook 'company-mode-hook 'company-box-mode)
+#+end_src
+** Prettier
+
+#+begin_src emacs-lisp
+;; NOTE: Install prettier globally
+;; `npm install -g prettier`
+`(setq prettier-js-args '(
+                          "--no-semi"
+                          "--bracket-same-line" "false"
+                          "--arrow-parens" "avoid"
+                          "--trailing-comma" "es5"
+                          "--bracket-spacing" "false"
+                          ))
+;; (add-hook 'json-mode-hook 'prettier-js-mode)
+;; (add-hook 'js2-mode-hook 'prettier-js-mode)
+;; (add-hook 'web-mode-hook 'prettier-js-mode)
+;; (add-hook 'Typescript-TSX-mode-hook 'prettier-js-mode)
+#+end_src
+** Yasnippet
+#+begin_src emacs-lisp
+  (setq yas-snippet-dirs
+        '(
+          "~/.emacs.snippets"                 ;; personal snippets
+          ))
+
+  (global-set-key (kbd "C-c y") 'company-yasnippet)
+#+end_src
+
+** Alignment Macros
+#+begin_src lisp
+  ;; Alignment macros
+  (fset 'arnd/align-to-colon
+        (kmacro-lambda-form
+         [?  ?u ?\M-x ?a ?l ?i ?g ?n ?- ?r ?e ?g ?e ?x ?p return ?: return return return ?y] 0 "%d"))
+  (fset 'arnd/align-to-equal
+        (kmacro-lambda-form
+         [?  ?u ?\M-x ?a ?l ?i ?g ?n ?- ?r ?e ?g ?e ?x ?p return ?= return return return ?y] 0 "%d"))
+  (fset 'arnd/align-to-period
+        (kmacro-lambda-form
+         [?  ?u ?\M-x ?a ?l ?i ?g ?n ?- ?r ?e ?g ?e ?x ?p return ?. return return return ?y] 0 "%d"))
+  (fset 'arnd/align-to-space
+        (kmacro-lambda-form
+         [?  ?u ?\M-x ?a ?l ?i ?g ?n ?- ?r ?e ?g ?e ?x ?p return ?  return return return ?y] 0 "%d"))
+
+
+#+end_src
+
+* ORG Mode
+
+#+begin_src emacs-lisp
+
+;; If you use `org' and don't want your org files in the default location below,
+;; change `org-directory'. It must be set before org loads!
+(setq org-directory "~/OrgNotes/")
+
+#+end_src
+
+** Structure Templates
+
+Org Mode's [[https://orgmode.org/manual/Structure-Templates.html][structure templates]] feature enables you to quickly insert code blocks into your Org files in combination with =org-tempo= by typing =<= followed by the template name like =el= or =py= and then press =TAB=.  For example, to insert an empty =emacs-lisp= block below, you can type =<el= and press =TAB= to expand into such a block.
+
+You can add more =src= block templates below by copying one of the lines and changing the two strings at the end, the first to be the template name and the second to contain the name of the language [[https://orgmode.org/worg/org-contrib/babel/languages.html][as it is known by Org Babel]].
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
+  (add-to-list 'org-structure-template-alist '("mk" . "src markdown")))
+
+#+end_src
+
+** Emacs
+#+begin_src emacs-lisp
+(setq frame-title-format "%b \- AR&D")
+#+end_src
+
+** Roam
+#+begin_src emacs-lisp :tangle yes
+(setq org-roam-directory (file-truename "~/OrgRoam"))
+
+(use-package! org-roam
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+#+end_src
+* Custom Functions
+
+** Capitalize First Char
+Useful for the =useState= Function in React
+#+begin_src emacs-lisp
+
+  (defun arnd/capitalize-first-char (&optional string)
+    "Capitalize only the first character of the input STRING."
+    (when (and string (> (length string) 0))
+      (let ((first-char (substring string nil 1))
+            (rest-str   (substring string 1)))
+        (concat (capitalize first-char) rest-str))))
+
+#+end_src

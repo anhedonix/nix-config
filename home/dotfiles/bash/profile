@@ -1,0 +1,5 @@
+alias ls="lsd"
+alias ll="ls -lah"
+alias cd=z
+
+export PATH="$PATH:$HOME/.local/bin"

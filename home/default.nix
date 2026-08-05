@@ -12,6 +12,7 @@
     ./shell.nix
     ./mise.nix
     ./fonts.nix
+    ./dotfiles.nix
   ];
 
   home = {
