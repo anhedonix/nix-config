@@ -34,4 +34,13 @@ in
   // lib.optionalAttrs isDarwin {
     "Library/Application Support/Cursor/User/settings.json".source = link "cursor/settings.json";
   };
+
+  # Clone Doom core and run `doom install` once Emacs is available.
+  home.activation.installDoomEmacs = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    if command -v emacs >/dev/null 2>&1 \
+       && [ -d "$HOME/.config/doom" ] \
+       && [ ! -e "$HOME/.config/emacs" ]; then
+      "$HOME/.local/bin/install_doom_emacs.sh"
+    fi
+  '';
 }

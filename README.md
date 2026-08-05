@@ -67,6 +67,8 @@ Configs live under [`home/dotfiles/`](home/dotfiles/) and are linked into `$HOME
 
 Shell, git, mise, and Starship stay as native Home Manager options (not file copies from the old `~/dotfiles` tree). After a successful switch you can retire `~/dotfiles`.
 
+**Doom Emacs:** After Emacs is on your `PATH` and `~/.config/doom` is linked, the next Home Manager switch runs `~/.local/bin/install_doom_emacs.sh` once (clones Doom into `~/.config/emacs` and runs `doom install`). Later switches skip this if `~/.config/emacs` already exists.
+
 **First switch:** Home Manager refuses to overwrite existing non-HM files. Back up or remove conflicting paths (e.g. `~/.config/zed`, `~/.config/gh`, `~/.config/karabiner`, `~/.config/doom` if they are not already HM-managed) before applying.
 
 ## Project Structure
