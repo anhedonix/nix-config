@@ -1,20 +1,26 @@
-{ primaryUser, ... }:
+{ config, ... }:
 {
   programs.git = {
     enable = true;
-    userName = "YOUR_NAME"; # TODO replace
-    userEmail = "YOUR_EMAIL"; # TODO replace
+    userName = "anhedonix";
+    userEmail = "anhedonix@gmail.com";
 
     lfs.enable = true;
+
+    signing = {
+      format = "ssh";
+      key = "${config.home.homeDirectory}/.ssh/id_ed25519_github_signing";
+      signByDefault = true;
+    };
 
     ignores = [ "**/.DS_STORE" ];
 
     extraConfig = {
       github = {
-        user = primaryUser;
+        user = "anhedonix";
       };
       init = {
-        defaultBranch = "main";
+        defaultBranch = "master";
       };
     };
   };

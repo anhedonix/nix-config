@@ -3,6 +3,7 @@
   imports = [
     ./packages.nix
     ./git.nix
+    ./git-signing.nix
     ./shell.nix
     ./mise.nix
     ./fonts.nix

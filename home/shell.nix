@@ -6,20 +6,34 @@ _: {
     syntaxHighlighting.enable = true;
 
     shellAliases = {
-      la = "ls -la";
+      ls = "eza";
+      ll = "eza -lah";
+      l = "eza -lh";
+      "~" = "cd ~";
       ".." = "cd ..";
-      "nix-switch" = "sudo darwin-rebuild switch --flake ~/.config/nix";
+      "..." = "cd ../..";
+      "...." = "cd ../../..";
+      cd = "z";
+      brew = "echo 'Homebrew is strictly managed by nix-darwin. Edit flake.nix instead.'";
+      sdr = "sudo darwin-rebuild switch --flake ~/nix-dotfiles";
+      git-signing-setup = "ensure-git-ssh-signing";
     };
+
+    initContent = ''
+      if [[ -o interactive ]] && [[ ! -f ~/.ssh/id_ed25519_github_signing || ! -f ~/.ssh/id_ed25519_github_signing.github ]]; then
+        ensure-git-ssh-signing || true
+      fi
+    '';
   };
 
   programs.starship = {
     enable = true;
     settings = {
-      add_newline = false;
-      character = {
-        success_symbol = "[λ](bold green)";
-        error_symbol = "[λ](bold red)";
-      };
+      add_newline = true;
+#      character = {
+#        success_symbol = "[λ](bold green)";
+#        error_symbol = "[λ](bold red)";
+#      };
     };
   };
 }
