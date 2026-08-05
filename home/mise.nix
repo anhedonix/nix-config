@@ -6,14 +6,14 @@
 
     settings = {
       experimental = true;
-      verbose = false;
+      verbose = true;
       auto_install = true;
     };
   };
 
   # activation script to set up mise configuration
   home.activation.setupMise = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # use the virtual environment created by uv 
+    # use the virtual environment created by uv
     # ${pkgs.mise}/bin/mise settings set python.uv_venv_auto true
 
     # enable corepack (pnpm, yarn, etc.)
@@ -25,7 +25,7 @@
     # set global tool versions (auto_install will handle installation)
     ${pkgs.mise}/bin/mise use --global node@lts
     ${pkgs.mise}/bin/mise use --global bun@latest
-    ${pkgs.mise}/bin/mise use --global deno@latest
+    #    ${pkgs.mise}/bin/mise use --global deno@latest
     ${pkgs.mise}/bin/mise use --global uv@latest
     ${pkgs.mise}/bin/mise use --global rust@stable
   '';
