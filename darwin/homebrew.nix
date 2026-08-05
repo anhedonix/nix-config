@@ -30,7 +30,7 @@
 
       # --- Dev tools & IDEs ---
       "cursor" # AI code editor
-      "docker-desktop" # Docker GUI and engine
+      "podman-desktop" # Podman GUI and engine
       "ghostty" # GPU-accelerated terminal
       "visual-studio-code" # code editor
       "zed" # fast collaborative editor
@@ -72,8 +72,7 @@
 
     brews = [
       # --- Containers ---
-      "colima" # lightweight container runtime
-      "docker" # Docker CLI
+      "podman" # Podman CLI (Brew-only; pairs with podman-desktop cask)
 
       # --- Formatting ---
       "prettier" # code formatter
