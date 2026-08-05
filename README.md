@@ -1,94 +1,85 @@
-# Nix macOS Starter
+# Nix Config (macOS + NixOS)
 
-A beginner-friendly Nix configuration for macOS using flakes, nix-darwin, Home Manager, and Mise.
+Declarative system configuration for macOS (nix-darwin) and NixOS, with a shared Home Manager layer. Containers use **Podman Desktop** on both platforms.
 
-## About
-
-A clean, well-documented starting point for managing your macOS system declaratively with Nix. Includes sensible defaults for development tools, shell configuration, and system settings.
-
-**Author:** Ben Gubler
+**Author:** Anand Magaji
 
 ## Prerequisites
 
-1. **Install Nix** using the [Determinate Systems installer](https://docs.determinate.systems/#products) (download the graphical installer for macOS). After installation, restart your terminal.
+### macOS
 
-**Note:** Homebrew is managed declaratively via nix-homebrew - if you already have it installed, it will auto-migrate. Otherwise, it's installed automatically.
+1. Install Nix with the [Determinate Systems installer](https://docs.determinate.systems/#products). Restart the terminal after install.
+2. Homebrew is managed via nix-homebrew / nix-darwin (migrates an existing install if present).
+
+### NixOS
+
+1. Install NixOS on the machine, then replace [`hosts/tp14s/hardware-configuration.nix`](hosts/tp14s/hardware-configuration.nix) with real hardware config from `nixos-generate-config`.
+2. Clone this repo and apply with the Linux switch script (below).
 
 ## Quick Start
 
-### 1. Clone and Configure
-
 ```bash
-# Clone the repository
-git clone https://github.com/nebrelbug/nix-macos-starter ~/.config/nix
-cd ~/.config/nix
+git clone https://github.com/amagaji/nix-config.git ~/Documents/GitHub/nix-config
+cd ~/Documents/GitHub/nix-config
 ```
 
-### 2. Customize Your Configuration
-
-**For Intel Mac Users:** Change the system architecture in `flake.nix` from `"aarch64-darwin"` to `"x86_64-darwin"` on line 28.
-
-**Replace all placeholders:**
-
-- `flake.nix`: `YOUR_USERNAME` (this sets the username for the entire system)
-- `home/git.nix`: `YOUR_NAME`, `YOUR_EMAIL`
-
-### 3. Apply the Configuration
+### Apply configuration
 
 ```bash
-# Build and switch to the configuration
-darwin-rebuild switch --flake .#my-macbook
+# macOS (defaults: username=amagaji, hostname=macpro-m2)
+./scripts/switch-mac.sh
+./scripts/switch-mac.sh amagaji macpro-m2
 
-# Or use the alias after initial setup
-nix-switch
+# NixOS (defaults: username=amagaji, hostname=tp14s)
+./scripts/switch-linux.sh
+./scripts/switch-linux.sh amagaji tp14s
 ```
+
+Scripts export `PRIMARY_USER` and rebuild with `--impure` so the username can be overridden at runtime. The hostname selects the flake attribute (`#macpro-m2` or `#tp14s`).
+
+After the first successful switch, shell aliases `sdr` (macOS) and `snr` (Linux) point at these scripts.
 
 ## What's Included
 
-**Development Tools**: [mise](https://mise.jdx.dev/) for Node.js/Python/Rust/etc., Zsh with Starship prompt, essential CLI tools (curl, vim, tmux, htop, tree, ripgrep, gh, zoxide), code quality tools (nil, biome, nixfmt-rfc-style)
+**Shared (Home Manager):** mise, Zsh + Starship, CLI tools (curl, neovim, tmux, eza, ripgrep, gh, zoxide, …), git + SSH signing, fonts.
 
-**GUI Applications**: Cursor, Ghostty, VS Code, Zed, Raycast, CleanShot, HiddenBar, BetterDisplay, Discord, Slack, 1Password, Brave Browser, Obsidian, Spotify
+**macOS:** nix-darwin system settings, declarative Homebrew GUIs, Podman Desktop + `podman` CLI via Homebrew.
 
-**System Configuration**: Git setup, macOS optimizations (Finder, Touch ID sudo), Nix settings (flakes, garbage collection), declarative Homebrew management
+**NixOS:** Podman engine (`dockerCompat`), Flatpak, Podman Desktop from Flathub (`io.podman_desktop.PodmanDesktop`).
 
 ## Project Structure
 
 ```
-nix-macos-starter/
-├── flake.nix                    # Main flake configuration and inputs
-├── darwin/
-│   ├── default.nix              # Core macOS system configuration
-│   ├── settings.nix             # macOS UI/UX preferences and defaults
-│   └── homebrew.nix             # GUI applications via Homebrew
-├── home/
-│   ├── default.nix              # Home Manager configuration entry point
-│   ├── packages.nix             # Package declarations and mise setup
-│   ├── git.nix                  # Git configuration
-│   ├── shell.nix                # Shell configuration
-│   └── mise.nix                 # Development runtime management
+nix-config/
+├── flake.nix                      # darwinConfigurations.macpro-m2 + nixosConfigurations.tp14s
+├── scripts/
+│   ├── switch-mac.sh              # darwin-rebuild (user/host args)
+│   └── switch-linux.sh            # nixos-rebuild (user/host args)
+├── darwin/                        # macOS system modules + Homebrew
+├── nixos/                         # NixOS system modules + Podman/Flatpak
+├── home/                          # Shared Home Manager modules
 └── hosts/
-    └── my-macbook/
-        ├── configuration.nix    # Host-specific packages and settings
-        └── shell-functions.sh   # Custom shell scripts
+    ├── macpro-m2/                 # Mac host
+    └── tp14s/                     # NixOS host (+ hardware placeholder)
 ```
 
 ## Customization
 
-**Add CLI Tools**: Edit `home/packages.nix` packages array  
-**Add GUI Apps**: Edit `darwin/homebrew.nix` casks array  
-**Add Development Tools**: Add `${pkgs.mise}/bin/mise use --global tool@version` to `home/mise.nix` activation script  
-**Host-Specific Config**: Use `hosts/my-macbook/configuration.nix` for machine-specific packages/apps and `custom-scripts.sh` for shell scripts
+| Change | Where |
+|--------|--------|
+| CLI tools | [`home/packages.nix`](home/packages.nix) |
+| Mac GUI apps | [`darwin/homebrew.nix`](darwin/homebrew.nix) |
+| Dev runtimes (mise) | [`home/mise.nix`](home/mise.nix) |
+| Mac host extras | [`hosts/macpro-m2/configuration.nix`](hosts/macpro-m2/configuration.nix) |
+| Linux host / hardware | [`hosts/tp14s/`](hosts/tp14s/) |
 
 ## Troubleshooting
 
-**"Command not found"**: Restart terminal  
-**Permission denied**: Use `sudo darwin-rebuild switch --flake .#my-macbook`  
-**Homebrew apps not installing**: nix-homebrew handles this automatically; ensure `/opt/homebrew/bin` in PATH  
-**Git config not applying**: Replace all `YOUR_*` placeholders, re-run darwin-rebuild
-
-**Need help?** Check [Nix manual](https://nixos.org/manual/nix/stable/), [nix-darwin docs](https://github.com/LnL7/nix-darwin), [Home Manager options](https://nix-community.github.io/home-manager/options.html)
+- **Wrong OS:** each switch script refuses to run on the other platform.
+- **Unknown flake attr:** hostname must match an output in `flake.nix` (`macpro-m2` or `tp14s`).
+- **NixOS hardware:** replace the placeholder `hardware-configuration.nix` before a real install.
+- **Leftover Docker Desktop / Colima on Mac:** after switching to Podman, uninstall any non-Brew leftovers manually if Homebrew cleanup did not remove them.
 
 ## Credits
 
-- [Ethan Niser](https://github.com/ethanniser) for his [config repo](https://github.com/ethanniser/config) which I used as a reference for this project.
-- David Haupt's excellent [tutorial series](https://davi.sh/blog/2024/01/nix-darwin/) which (although slightly outdated) helped me understand the basics of Nix.
+- Based on patterns from [nix-macos-starter](https://github.com/nebrelbug/nix-macos-starter) and related nix-darwin / Home Manager setups.
