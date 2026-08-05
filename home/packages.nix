@@ -18,6 +18,8 @@
       ripgrep # fast recursive search
       zoxide # smarter cd
       eza # modern ls (used by shell aliases)
+      bat # cat with syntax highlighting (shell alias)
+      rm-improved # safer rm alternative as `rip` (shell alias)
 
       # --- Git & GitHub ---
       gh # GitHub CLI

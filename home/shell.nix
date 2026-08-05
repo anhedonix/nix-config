@@ -20,13 +20,20 @@ in
     shellAliases =
       {
         ls = "eza";
-        ll = "eza -lah";
+        ll = "eza -lah --git";
         l = "eza -lh";
         "~" = "cd ~";
         ".." = "cd ..";
         "..." = "cd ../..";
         "...." = "cd ../../..";
         cd = "z";
+        cat = "bat";
+        cp = "cp -iv";
+        mv = "mv -iv";
+        rm = "rip";
+        untar = "tar -zxvf";
+        srz = "source ~/.zshrc";
+        zvi = "nvim ${flakeDir}/home/shell.nix";
         git-signing-setup = "ensure-git-ssh-signing";
       }
       // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
