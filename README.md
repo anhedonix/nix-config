@@ -1,57 +1,164 @@
-# Nix Config (macOS + NixOS)
+# nix-config
 
-Declarative system configuration for macOS (nix-darwin) and NixOS, with a shared Home Manager layer. Containers use **Podman Desktop** on both platforms.
+Declarative system configuration for **macOS** (nix-darwin) and **NixOS**, with a shared Home Manager layer. Containers use **Podman Desktop** on both platforms (not Docker Desktop).
 
-**Author:** Anand Magaji
+This is a customized fork by [Anand Magaji](https://magaji.dev).
 
-## Prerequisites
+## Getting started
 
-### macOS
-
-1. Install Nix with the [Determinate Systems installer](https://docs.determinate.systems/#products). Restart the terminal after install.
-2. Homebrew is managed via nix-homebrew / nix-darwin (migrates an existing install if present).
-
-### NixOS
-
-1. Install NixOS on the machine, then replace [`hosts/tp14s/hardware-configuration.nix`](hosts/tp14s/hardware-configuration.nix) with real hardware config from `nixos-generate-config`.
-2. Clone this repo and apply with the Linux switch script (below).
-
-## Quick Start
+Clone path must be `~/Documents/GitHub/nix-config` — out-of-store dotfile symlinks and rebuild aliases use that absolute path.
 
 ```bash
-git clone https://github.com/amagaji/nix-config.git ~/Documents/GitHub/nix-config
+mkdir -p ~/Documents/GitHub
+git clone https://github.com/anhedonix/nix-config.git ~/Documents/GitHub/nix-config
 cd ~/Documents/GitHub/nix-config
 ```
 
-### Apply configuration
+### macOS
 
 ```bash
-# macOS (defaults: username=amagaji, hostname=amagaji-mac)
-./scripts/switch-mac.sh
-./scripts/switch-mac.sh amagaji amagaji-mac
+# 1) Install Nix (Determinate). Restart the terminal afterward.
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
-# NixOS (defaults: username=amagaji, hostname=tp14s)
-./scripts/switch-linux.sh
-./scripts/switch-linux.sh amagaji tp14s
+# 2) Optional but recommended before first switch: back up conflicting paths
+#    e.g. ~/.config/{doom,nvim,zed,gh,lazygit,karabiner,fish} ~/.bashrc ~/.bash_profile ~/.profile
+
+# 3) Apply the system + Home Manager config
+./scripts/switch-mac.sh
+# equivalent: ./scripts/switch-mac.sh amagaji amagaji-mac
+
+# 4) Reload the shell (or open a new terminal)
+exec zsh
+# later rebuilds: sdr
 ```
 
-Scripts export `PRIMARY_USER` and rebuild with `--impure` so the username can be overridden at runtime. The hostname selects the flake attribute (`#amagaji-mac` or `#tp14s`).
+Homebrew is managed by nix-homebrew / nix-darwin (migrates an existing install if present). This flake sets `nix.enable = false` on Darwin so the Determinate installer owns Nix.
 
-After the first successful switch, shell aliases `sdr` (macOS) and `snr` (Linux) point at these scripts.
+### NixOS
 
-## What's Included
+```bash
+# 1) On a fresh install, generate real hardware config and replace the placeholder
+sudo nixos-generate-config --show-hardware-config > hosts/tp14s/hardware-configuration.nix
 
-**Shared (Home Manager):** mise, Zsh + Starship, CLI tools (curl, neovim, tmux, eza, bat, ripgrep, gh, zoxide, …), git + SSH signing, fonts, and out-of-store symlinked dotfiles (nvim, Doom, Zed, gh, lazygit, fish/bash, containers.conf).
+# 2) Optional: back up conflicting home paths (same idea as macOS)
 
-**macOS:** nix-darwin system settings, declarative Homebrew GUIs, Podman Desktop + `podman` CLI via Homebrew, Karabiner + Cursor settings symlinks.
+# 3) Apply
+./scripts/switch-linux.sh
+# equivalent: ./scripts/switch-linux.sh amagaji tp14s
 
-**NixOS:** Podman engine (`dockerCompat`), Flatpak, Podman Desktop from Flathub (`io.podman_desktop.PodmanDesktop`).
+# 4) Reload the shell
+exec zsh
+# later rebuilds: snr
+```
 
-## Dotfiles
+### Overrides
 
-Configs live under [`home/dotfiles/`](home/dotfiles/) and are linked into `$HOME` / `~/.config` by [`home/dotfiles.nix`](home/dotfiles.nix) via `mkOutOfStoreSymlink`.
+```bash
+./scripts/switch-mac.sh <username> <hostname>
+./scripts/switch-linux.sh <username> <hostname>
+```
 
-**Clone path must be** `~/Documents/GitHub/nix-config` — symlink targets are absolute paths under that checkout. Edit files in the repo; they apply immediately (no rebuild) for linked configs. Run a switch after adding or changing symlink wiring in Nix.
+Scripts export `PRIMARY_USER` and rebuild with `--impure` so the username can be overridden at runtime. The hostname must match a flake output (`amagaji-mac` or `tp14s`).
+
+### After the first switch
+
+- **Git SSH signing:** run `gss` (or `ensure-git-ssh-signing`) if needed; interactive zsh also auto-runs it when the signing key/marker is missing.
+- **mise:** activation installs global tools (`node@lts`, `bun@latest`, `uv@latest`, `rust@stable`).
+- **Doom Emacs:** once `emacs` is on your `PATH` and `~/.config/doom` is linked, the next switch runs a one-shot install into `~/.config/emacs`.
+
+## How it works
+
+```mermaid
+flowchart LR
+  switchScript["scripts/switch-*.sh"] --> rebuild["darwin-rebuild / nixos-rebuild --impure"]
+  rebuild --> flake["flake.nix host attr"]
+  flake --> platform["darwin/ or nixos/"]
+  flake --> host["hosts/hostname/"]
+  platform --> hm["home/ via Home Manager"]
+  host --> hm
+```
+
+| Layer | Role |
+|-------|------|
+| [`flake.nix`](flake.nix) | Outputs `darwinConfigurations.amagaji-mac` and `nixosConfigurations.tp14s`; reads `PRIMARY_USER` (default `amagaji`) |
+| [`darwin/`](darwin/) | macOS system modules, nix-homebrew, fonts, defaults |
+| [`nixos/`](nixos/) | NixOS system modules, Podman + Flatpak Podman Desktop |
+| [`home/`](home/) | Shared Home Manager: packages, shell, git, mise, fonts, dotfiles |
+| [`hosts/`](hosts/) | Per-machine hostname, hardware, and host-only extras |
+
+Dotfiles under [`home/dotfiles/`](home/dotfiles/) are linked with `mkOutOfStoreSymlink`, so edits in the repo apply immediately. Shell, git, mise, and Starship are native Home Manager options (a rebuild is required for those).
+
+## Repository layout
+
+```
+nix-config/
+├── flake.nix                      # darwinConfigurations.amagaji-mac + nixosConfigurations.tp14s
+├── scripts/
+│   ├── switch-mac.sh              # darwin-rebuild (user/host args)
+│   └── switch-linux.sh            # nixos-rebuild (user/host args)
+├── darwin/                        # macOS system modules + Homebrew
+├── nixos/                         # NixOS system modules + Podman/Flatpak
+├── home/                          # Shared Home Manager modules
+│   └── dotfiles/                  # Symlinked configs (nvim, doom, zed, …)
+└── hosts/
+    ├── amagaji-mac/               # aarch64-darwin host
+    └── tp14s/                     # x86_64-linux NixOS host (+ hardware placeholder)
+```
+
+## Day-to-day commands
+
+| Command | Platform | Purpose |
+|---------|----------|---------|
+| `sdr` | macOS | Rebuild via `scripts/switch-mac.sh` |
+| `snr` | Linux | Rebuild via `scripts/switch-linux.sh` |
+| `gss` | both | Ensure GitHub SSH commit signing (`ensure-git-ssh-signing`) |
+| `zvi` | both | Edit `home/shell.nix` in neovim |
+| `srz` | both | `source ~/.zshrc` |
+| `ls` / `ll` / `l` | both | `eza` variants |
+| `cd` | both | `z` (zoxide) |
+| `cat` | both | `bat` |
+| `rm` | both | `rip` (rm-improved) |
+| `cp` / `mv` | both | interactive (`-iv`) |
+| `~` `..` `...` `....` | both | navigation shortcuts |
+| `untar` | both | `tar -zxvf` |
+| `brew` | macOS | Stub — edit [`darwin/homebrew.nix`](darwin/homebrew.nix) instead |
+
+Starship prompt uses a `λ` character for success/error.
+
+## Default installed software
+
+### CLI (nixpkgs, both platforms)
+
+From [`home/packages.nix`](home/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `zoxide`, `eza`, `bat`, `rm-improved`, `gh`, `mise`, `nil`, `biome`, `nixfmt-rfc-style`, `yt-dlp`, `ffmpeg`.
+
+macOS host extra ([`hosts/amagaji-mac/configuration.nix`](hosts/amagaji-mac/configuration.nix)): `graphite-cli`.
+
+### mise globals
+
+`node@lts`, `bun@latest`, `uv@latest`, `rust@stable`.
+
+### macOS Homebrew
+
+From [`darwin/homebrew.nix`](darwin/homebrew.nix):
+
+| Kind | Packages |
+|------|----------|
+| Casks | Aerospace, Hidden Bar, Raycast, Karabiner-Elements, BetterDisplay, CleanShot, Figma beta, Cursor, Podman Desktop, Ghostty, VS Code, Zed, GitHub Desktop, Git Credential Manager, Discord, Slack beta, Signal, 1Password, Brave, Zen, Anki, Freeplane, Obsidian, JDownloader, Spotify |
+| Brews | `podman`, `prettier` |
+| Tap | `nikitabobko/tap` (Aerospace) |
+| MAS | WhatsApp, GoodNotes3 |
+
+### NixOS containers
+
+Podman with `dockerCompat` (no Docker daemon) and Flatpak Podman Desktop (`io.podman_desktop.PodmanDesktop`) via [`nixos/podman.nix`](nixos/podman.nix).
+
+### Fonts
+
+DejaVu; Nerd Fonts (Iosevka, Fira Code, Fira Mono, Go Mono, JetBrains Mono, Sauce Code Pro); Source Code Pro.
+
+### Managed dotfiles
+
+Configs live under [`home/dotfiles/`](home/dotfiles/) and are linked by [`home/dotfiles.nix`](home/dotfiles.nix).
 
 | Managed | Target |
 |---------|--------|
@@ -65,28 +172,7 @@ Configs live under [`home/dotfiles/`](home/dotfiles/) and are linked into `$HOME
 | Karabiner (macOS) | `~/.config/karabiner/karabiner.json` |
 | Cursor settings (macOS) | `~/Library/Application Support/Cursor/User/settings.json` |
 
-Shell, git, mise, and Starship stay as native Home Manager options (not file copies from the old `~/dotfiles` tree). After a successful switch you can retire `~/dotfiles`.
-
-**Doom Emacs:** After Emacs is on your `PATH` and `~/.config/doom` is linked, the next Home Manager switch runs `~/.local/bin/install_doom_emacs.sh` once (clones Doom into `~/.config/emacs` and runs `doom install`). Later switches skip this if `~/.config/emacs` already exists.
-
-**First switch:** Home Manager refuses to overwrite existing non-HM files. Back up or remove conflicting paths (e.g. `~/.config/zed`, `~/.config/gh`, `~/.config/karabiner`, `~/.config/doom` if they are not already HM-managed) before applying.
-
-## Project Structure
-
-```
-nix-config/
-├── flake.nix                      # darwinConfigurations.amagaji-mac + nixosConfigurations.tp14s
-├── scripts/
-│   ├── switch-mac.sh              # darwin-rebuild (user/host args)
-│   └── switch-linux.sh            # nixos-rebuild (user/host args)
-├── darwin/                        # macOS system modules + Homebrew
-├── nixos/                         # NixOS system modules + Podman/Flatpak
-├── home/                          # Shared Home Manager modules
-│   └── dotfiles/                  # Symlinked configs (nvim, doom, zed, …)
-└── hosts/
-    ├── amagaji-mac/                 # Mac host
-    └── tp14s/                     # NixOS host (+ hardware placeholder)
-```
+**First switch:** Home Manager refuses to overwrite existing non-HM files. Back up or remove conflicting paths before applying.
 
 ## Customization
 
@@ -104,10 +190,10 @@ nix-config/
 - **Wrong OS:** each switch script refuses to run on the other platform.
 - **Unknown flake attr:** hostname must match an output in `flake.nix` (`amagaji-mac` or `tp14s`).
 - **NixOS hardware:** replace the placeholder `hardware-configuration.nix` before a real install.
-- **Leftover Docker Desktop / Colima on Mac:** after switching to Podman, uninstall any non-Brew leftovers manually if Homebrew cleanup did not remove them.
+- **Leftover Docker Desktop / Colima on Mac:** after switching to Podman, uninstall any non-Brew leftovers manually if needed.
 - **Dotfile symlink conflicts:** remove or rename existing target files/dirs, then re-run the switch script.
 - **Broken out-of-store links:** ensure the repo is checked out at `~/Documents/GitHub/nix-config`.
 
 ## Credits
 
-- Based on patterns from [nix-macos-starter](https://github.com/nebrelbug/nix-macos-starter) and related nix-darwin / Home Manager setups.
+Customized fork by [Anand Magaji](https://magaji.dev), based on [bgub/nix-macos-starter](https://github.com/bgub/nix-macos-starter).
