@@ -1,6 +1,6 @@
 {
   lib,
-  pkgs,
+  config,
   primaryUser,
   ...
 }:
@@ -11,18 +11,11 @@
     ./git-signing.nix
     ./shell.nix
     ./mise.nix
-    ./fonts.nix
     ./dotfiles.nix
   ];
 
   home = {
     username = primaryUser;
-    homeDirectory = lib.mkDefault (
-      if pkgs.stdenv.hostPlatform.isDarwin then
-        "/Users/${primaryUser}"
-      else
-        "/home/${primaryUser}"
-    );
     stateVersion = "25.05";
     sessionVariables = {
       # shared environment variables
@@ -30,5 +23,10 @@
 
     # create .hushlogin file to suppress login messages
     file.".hushlogin".text = "";
+
+    # Keep HM's profile dir present (Determinate Nix may not create the global one).
+    activation.ensureNixProfilesDir = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+      mkdir -p "${config.xdg.stateHome}/nix/profiles"
+    '';
   };
 }

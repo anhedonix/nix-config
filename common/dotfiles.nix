@@ -1,13 +1,11 @@
 {
   lib,
-  pkgs,
   config,
   ...
 }:
 let
   flakeDir = "${config.home.homeDirectory}/Documents/GitHub/nix-config";
-  link = path: config.lib.file.mkOutOfStoreSymlink "${flakeDir}/home/dotfiles/${path}";
-  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  link = path: config.lib.file.mkOutOfStoreSymlink "${flakeDir}/common/dotfiles/${path}";
 in
 {
   xdg.configFile = {
@@ -19,10 +17,6 @@ in
     "lazygit/config.yml".source = link "lazygit/config.yml";
     "fish/config.fish".source = link "fish/config.fish";
     "fish/conf.d/rustup.fish".source = link "fish/conf.d/rustup.fish";
-    "containers/containers.conf".source = link "containers/containers.conf";
-  }
-  // lib.optionalAttrs isDarwin {
-    "karabiner/karabiner.json".source = link "karabiner/karabiner.json";
   };
 
   home.file = {
@@ -30,9 +24,6 @@ in
     ".bash_profile".source = link "bash/bash_profile";
     ".profile".source = link "bash/profile";
     ".local/bin/install_doom_emacs.sh".source = link "bin/install_doom_emacs.sh";
-  }
-  // lib.optionalAttrs isDarwin {
-    "Library/Application Support/Cursor/User/settings.json".source = link "cursor/settings.json";
   };
 
   # Clone Doom core and run `doom install` once Emacs is available.

@@ -40,15 +40,23 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
+    backupFileExtension = "hm-backup";
     users.${primaryUser} = {
       imports = [
-        ../home
+        ../common
+        ./home
       ];
     };
     extraSpecialArgs = {
       inherit inputs self primaryUser;
     };
   };
+
+  # Determinate Nix often skips /nix/var/nix/profiles/per-user/$USER; HM needs a
+  # profiles dir before its activation script can link ~/.zshrc and friends.
+  system.activationScripts.ensureHomeManagerProfileDir.text = ''
+    install -d -o ${primaryUser} -g staff "/Users/${primaryUser}/.local/state/nix/profiles"
+  '';
 
   # macOS-specific settings
   system.primaryUser = primaryUser;

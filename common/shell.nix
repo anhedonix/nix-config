@@ -1,14 +1,6 @@
-{
-  lib,
-  pkgs,
-  config,
-  ...
-}:
+{ config, ... }:
 let
-  # Prefer the flake checkout when present; fall back to a common clone path.
   flakeDir = "${config.home.homeDirectory}/Documents/GitHub/nix-config";
-  switchMac = "${flakeDir}/scripts/switch-mac.sh";
-  switchLinux = "${flakeDir}/scripts/switch-linux.sh";
 in
 {
   programs.zsh = {
@@ -32,15 +24,8 @@ in
       rm = "rip";
       untar = "tar -zxvf";
       srz = "source ~/.zshrc";
-      zvi = "nvim ${flakeDir}/home/shell.nix";
+      zvi = "nvim ${flakeDir}/common/shell.nix";
       gss = "ensure-git-ssh-signing";
-    }
-    // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
-      brew = "echo 'Homebrew is strictly managed by nix-darwin. Edit darwin/homebrew.nix instead.'";
-      sdr = switchMac;
-    }
-    // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-      snr = switchLinux;
     };
 
     initContent = ''

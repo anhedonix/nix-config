@@ -16,7 +16,7 @@
     # nixpkgs is best for CLI tools
     casks = [
       # --- Window management & desktop ---
-      "aerospace" # tiling window manager
+      # "aerospace" # tiling window manager
       "hiddenbar" # menu bar icon hider
       "raycast" # launcher and productivity
       "karabiner-elements" # keyboard remapper

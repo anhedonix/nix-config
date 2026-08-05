@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  fonts.packages = import ../home/font-packages.nix { inherit pkgs; };
+  fonts.packages = import ../common/font-packages.nix { inherit pkgs; };
 }
