@@ -26,20 +26,36 @@
       ...
     }@inputs:
     let
-      # TODO: replace with your username
-      primaryUser = "amagaji";
+      # Override at switch time: PRIMARY_USER=... ./scripts/switch-*.sh (requires --impure)
+      primaryUser =
+        let
+          u = builtins.getEnv "PRIMARY_USER";
+        in
+        if u == "" then "amagaji" else u;
     in
     {
-      # build darwin flake using:
-      # $ darwin-rebuild build --flake .#<name>
-      darwinConfigurations."mac-pro" = darwin.lib.darwinSystem {
+      # macOS — apply with: ./scripts/switch-mac.sh [username] [hostname]
+      darwinConfigurations."macpro-m2" = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
           ./darwin
-          ./hosts/my-macbook/configuration.nix
+          ./hosts/macpro-m2/configuration.nix
         ];
-        specialArgs = { inherit inputs self primaryUser; };
+        specialArgs = {
+          inherit inputs self primaryUser;
+        };
       };
 
+      # NixOS — apply with: ./scripts/switch-linux.sh [username] [hostname]
+      nixosConfigurations."tp14s" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./nixos
+          ./hosts/tp14s/configuration.nix
+        ];
+        specialArgs = {
+          inherit inputs self primaryUser;
+        };
+      };
     };
 }
