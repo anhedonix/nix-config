@@ -4,7 +4,7 @@
   ...
 }:
 {
-  networking.hostName = "macpro-m2";
+  networking.hostName = "amagaji-mac";
 
   # host-specific homebrew casks
   homebrew.casks = [

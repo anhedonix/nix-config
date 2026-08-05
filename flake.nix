@@ -35,11 +35,11 @@
     in
     {
       # macOS — apply with: ./scripts/switch-mac.sh [username] [hostname]
-      darwinConfigurations."macpro-m2" = darwin.lib.darwinSystem {
+      darwinConfigurations."amagaji-mac" = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
           ./darwin
-          ./hosts/macpro-m2/configuration.nix
+          ./hosts/amagaji-mac/configuration.nix
         ];
         specialArgs = {
           inherit inputs self primaryUser;

@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 USERNAME="${1:-amagaji}"
-HOSTNAME="${2:-macpro-m2}"
+HOSTNAME="${2:-amagaji-mac}"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
   echo "error: switch-mac.sh must be run on macOS (Darwin)." >&2

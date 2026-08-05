@@ -26,16 +26,16 @@ cd ~/Documents/GitHub/nix-config
 ### Apply configuration
 
 ```bash
-# macOS (defaults: username=amagaji, hostname=macpro-m2)
+# macOS (defaults: username=amagaji, hostname=amagaji-mac)
 ./scripts/switch-mac.sh
-./scripts/switch-mac.sh amagaji macpro-m2
+./scripts/switch-mac.sh amagaji amagaji-mac
 
 # NixOS (defaults: username=amagaji, hostname=tp14s)
 ./scripts/switch-linux.sh
 ./scripts/switch-linux.sh amagaji tp14s
 ```
 
-Scripts export `PRIMARY_USER` and rebuild with `--impure` so the username can be overridden at runtime. The hostname selects the flake attribute (`#macpro-m2` or `#tp14s`).
+Scripts export `PRIMARY_USER` and rebuild with `--impure` so the username can be overridden at runtime. The hostname selects the flake attribute (`#amagaji-mac` or `#tp14s`).
 
 After the first successful switch, shell aliases `sdr` (macOS) and `snr` (Linux) point at these scripts.
 
@@ -73,7 +73,7 @@ Shell, git, mise, and Starship stay as native Home Manager options (not file cop
 
 ```
 nix-config/
-├── flake.nix                      # darwinConfigurations.macpro-m2 + nixosConfigurations.tp14s
+├── flake.nix                      # darwinConfigurations.amagaji-mac + nixosConfigurations.tp14s
 ├── scripts/
 │   ├── switch-mac.sh              # darwin-rebuild (user/host args)
 │   └── switch-linux.sh            # nixos-rebuild (user/host args)
@@ -82,7 +82,7 @@ nix-config/
 ├── home/                          # Shared Home Manager modules
 │   └── dotfiles/                  # Symlinked configs (nvim, doom, zed, …)
 └── hosts/
-    ├── macpro-m2/                 # Mac host
+    ├── amagaji-mac/                 # Mac host
     └── tp14s/                     # NixOS host (+ hardware placeholder)
 ```
 
@@ -94,13 +94,13 @@ nix-config/
 | Symlinked configs | [`home/dotfiles/`](home/dotfiles/) + [`home/dotfiles.nix`](home/dotfiles.nix) |
 | Mac GUI apps | [`darwin/homebrew.nix`](darwin/homebrew.nix) |
 | Dev runtimes (mise) | [`home/mise.nix`](home/mise.nix) |
-| Mac host extras | [`hosts/macpro-m2/configuration.nix`](hosts/macpro-m2/configuration.nix) |
+| Mac host extras | [`hosts/amagaji-mac/configuration.nix`](hosts/amagaji-mac/configuration.nix) |
 | Linux host / hardware | [`hosts/tp14s/`](hosts/tp14s/) |
 
 ## Troubleshooting
 
 - **Wrong OS:** each switch script refuses to run on the other platform.
-- **Unknown flake attr:** hostname must match an output in `flake.nix` (`macpro-m2` or `tp14s`).
+- **Unknown flake attr:** hostname must match an output in `flake.nix` (`amagaji-mac` or `tp14s`).
 - **NixOS hardware:** replace the placeholder `hardware-configuration.nix` before a real install.
 - **Leftover Docker Desktop / Colima on Mac:** after switching to Podman, uninstall any non-Brew leftovers manually if Homebrew cleanup did not remove them.
 - **Dotfile symlink conflicts:** remove or rename existing target files/dirs, then re-run the switch script.
