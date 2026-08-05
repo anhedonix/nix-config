@@ -1,5 +1,5 @@
 {
-  description = "My system configuration";
+  description = "Anand Magaji system configuration";
   inputs = {
     # monorepo w/ recipes ("derivations")
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
@@ -27,12 +27,12 @@
     }@inputs:
     let
       # TODO: replace with your username
-      primaryUser = "YOUR_USERNAME";
+      primaryUser = "amagaji";
     in
     {
       # build darwin flake using:
       # $ darwin-rebuild build --flake .#<name>
-      darwinConfigurations."my-macbook" = darwin.lib.darwinSystem {
+      darwinConfigurations."mac-pro" = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
           ./darwin
