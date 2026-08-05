@@ -8,13 +8,15 @@
 
   # host-specific homebrew casks
   homebrew.casks = [
-    # "slack"
+    # --- Messaging ---
+    # "slack" # team chat (use slack@beta in darwin/homebrew.nix)
   ];
 
   # host-specific home-manager configuration
   home-manager.users.${primaryUser} = {
     home.packages = with pkgs; [
-      graphite-cli
+      # --- Git & GitHub ---
+      graphite-cli # stacked PR workflow CLI
     ];
 
     programs = {
