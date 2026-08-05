@@ -18,4 +18,4 @@ echo "  user:  ${USERNAME}"
 echo "  host:  ${HOSTNAME}"
 echo "  flake: ${FLAKE_REF}"
 
-sudo exec darwin-rebuild switch --impure --flake "${FLAKE_REF}"
+exec darwin-rebuild switch --impure --flake "${FLAKE_REF}"
