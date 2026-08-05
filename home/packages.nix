@@ -2,30 +2,37 @@
 {
   home = {
     packages = with pkgs; [
-      # dev tools
-      curl
-      vim
-      tmux
-      htop
-      tree
-      ripgrep
-      gh
-      zoxide
+      # --- Network ---
+      curl # HTTP client
 
-      # programming languages
-      mise # node, deno, bun, rust, python, etc.
+      # --- Editors & multiplexers ---
+      neovim # modal text editor
+      tmux # terminal multiplexer
 
-      # misc
-      nil
-      biome
-      nixfmt-rfc-style
-      yt-dlp
-      ffmpeg
-      ollama
+      # --- System monitors ---
+      htop # interactive process viewer
+      btop # modern resource monitor
 
-      # fonts
-      nerd-fonts.fira-code
-      nerd-fonts.fira-mono
+      # --- Files & search ---
+      tree # directory tree listing
+      ripgrep # fast recursive search
+      zoxide # smarter cd
+
+      # --- Git & GitHub ---
+      gh # GitHub CLI
+
+      # --- Runtimes ---
+      mise # polyglot version manager
+
+      # --- Language tooling ---
+      nil # Nix language server
+      biome # JS/TS linter and formatter
+      nixfmt-rfc-style # Nix formatter (RFC style)
+
+      # --- Media ---
+      yt-dlp # video/audio downloader
+      ffmpeg # media conversion
+      # ollama # local LLM runtime
     ];
   };
 }
