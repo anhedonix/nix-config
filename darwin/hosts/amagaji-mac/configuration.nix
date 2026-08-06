@@ -15,6 +15,9 @@
   # host-specific home-manager configuration
   home-manager.users.${primaryUser} = {
     home.packages = with pkgs; [
+      # --- Editors ---
+      emacs-macport # Yamamoto Mac port Emacs (provides `emacs` for Doom)
+
       # --- Git & GitHub ---
       graphite-cli # stacked PR workflow CLI
     ];
