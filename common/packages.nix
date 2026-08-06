@@ -8,6 +8,7 @@
       # --- Editors & multiplexers ---
       neovim # modal text editor
       tmux # terminal multiplexer
+      joplin-desktop # note-taking app
 
       # --- System monitors ---
       htop # interactive process viewer
