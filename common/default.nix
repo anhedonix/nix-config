@@ -10,7 +10,6 @@
     ./git.nix
     ./git-signing.nix
     ./shell.nix
-    ./mise.nix
     ./dotfiles.nix
   ];
 
