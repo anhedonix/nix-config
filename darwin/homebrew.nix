@@ -1,4 +1,9 @@
-{ ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   homebrew = {
     enable = true;
@@ -87,4 +92,26 @@
       # "Tailscale" = 1475387142; # mesh VPN
     };
   };
+
+  # Skip already-installed MAS apps (HOMEBREW_BUNDLE_MAS_SKIP) while keeping
+  # them in the Brewfile so cleanup = "uninstall" does not remove them.
+  # Missing apps still install; casks/brews still upgrade (upgrade = true).
+  system.activationScripts.homebrew.text = lib.mkForce ''
+    echo >&2 "Homebrew bundle..."
+    if [ -f "${config.homebrew.prefix}/bin/brew" ]; then
+      skip=""
+      installed="$(${lib.getExe pkgs.mas} list 2>/dev/null | awk '{print $1}' || true)"
+      for id in ${lib.concatMapStringsSep " " toString (lib.attrValues config.homebrew.masApps)}; do
+        if printf '%s\n' "$installed" | grep -qx "$id"; then
+          skip="$skip $id"
+        fi
+      done
+      skip="$(echo "$skip" | xargs)"
+      ${lib.replaceStrings [ " env " ] [
+        " env HOMEBREW_BUNDLE_MAS_SKIP=\"$skip\" "
+      ] (config.homebrew.onActivation.brewBundleCmd { onlyCheck = false; })}
+    else
+      echo -e "\e[1;31merror: Homebrew is not installed, skipping...\e[0m" >&2
+    fi
+  '';
 }
