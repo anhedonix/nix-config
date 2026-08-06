@@ -1,7 +1,6 @@
 {
   lib,
   config,
-  pkgs,
   ...
 }:
 {
@@ -95,18 +94,30 @@
 
   # Skip already-installed MAS apps (HOMEBREW_BUNDLE_MAS_SKIP) while keeping
   # them in the Brewfile so cleanup = "uninstall" does not remove them.
+  # Detect via App Store adam IDs on /Applications (mas list often hangs).
   # Missing apps still install; casks/brews still upgrade (upgrade = true).
   system.activationScripts.homebrew.text = lib.mkForce ''
     echo >&2 "Homebrew bundle..."
     if [ -f "${config.homebrew.prefix}/bin/brew" ]; then
       skip=""
-      installed="$(${lib.getExe pkgs.mas} list 2>/dev/null | awk '{print $1}' || true)"
+      installed=""
+      for app in /Applications/*.app; do
+        [ -d "$app" ] || continue
+        adam="$(mdls -raw -name kMDItemAppStoreAdamID "$app" 2>/dev/null || true)"
+        case "$adam" in
+          ""|"(null)") ;;
+          *) installed="$installed $adam" ;;
+        esac
+      done
       for id in ${lib.concatMapStringsSep " " toString (lib.attrValues config.homebrew.masApps)}; do
-        if printf '%s\n' "$installed" | grep -qx "$id"; then
-          skip="$skip $id"
-        fi
+        case " $installed " in
+          *" $id "*) skip="$skip $id" ;;
+        esac
       done
       skip="$(echo "$skip" | xargs)"
+      if [ -n "$skip" ]; then
+        echo >&2 "Skipping already-installed Mac App Store apps:$skip"
+      fi
       ${lib.replaceStrings [ " env " ] [
         " env HOMEBREW_BUNDLE_MAS_SKIP=\"$skip\" "
       ] (config.homebrew.onActivation.brewBundleCmd { onlyCheck = false; })}
