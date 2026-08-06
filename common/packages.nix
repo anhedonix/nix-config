@@ -28,6 +28,7 @@
       nil # Nix language server
       biome # JS/TS linter and formatter
       nixfmt # Nix formatter (RFC style)
+      prettier # code formatter (parity with Mac Homebrew)
 
       # --- Media ---
       yt-dlp # video/audio downloader
