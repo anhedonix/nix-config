@@ -9,7 +9,7 @@
       cleanup = "uninstall";
     };
 
-    caskArgs.no_quarantine = true;
+    # caskArgs.no_quarantine = true; # causes installation issues
     global.brewfile = true;
 
     # homebrew is best for GUI apps
