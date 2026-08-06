@@ -39,7 +39,7 @@
       # "opencode-desktop" # OpenCode desktop app
       # "lm-studio" # local LLM studio
       # "mactex-no-gui" # TeX distribution (no GUI)
-      # "gitkraken" # Git GUI client
+      "gitkraken" # Git GUI client
 
       # --- Networking & remote ---
       # "tailscale-app" # mesh VPN client
