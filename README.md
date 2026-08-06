@@ -122,7 +122,7 @@ Starship prompt uses a `λ` character for success/error.
 
 ### CLI (nixpkgs, both platforms)
 
-From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `eza`, `bat`, `rm-improved`, `gh`, `lazygit`, `nil`, `biome`, `nixfmt-rfc-style`, `yt-dlp`, `ffmpeg`. Zoxide is enabled via `programs.zoxide` in [`common/shell.nix`](common/shell.nix).
+From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `eza`, `bat`, `rm-improved`, `gh`, `lazygit`, `nil`, `biome`, `nixfmt`, `yt-dlp`, `ffmpeg`. Zoxide is enabled via `programs.zoxide` in [`common/shell.nix`](common/shell.nix).
 
 macOS host extra ([`darwin/hosts/amagaji-mac/configuration.nix`](darwin/hosts/amagaji-mac/configuration.nix)): `emacs-macport`, `graphite-cli`.
 

@@ -27,7 +27,7 @@
       # --- Language tooling ---
       nil # Nix language server
       biome # JS/TS linter and formatter
-      nixfmt-rfc-style # Nix formatter (RFC style)
+      nixfmt # Nix formatter (RFC style)
 
       # --- Media ---
       yt-dlp # video/audio downloader
