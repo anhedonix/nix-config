@@ -1,6 +1,6 @@
 # nix-config
 
-Declarative system configuration for **macOS** (nix-darwin) and **NixOS**, with a shared Home Manager layer in `common/`. Containers use **Podman Desktop** on both platforms (not Docker Desktop).
+Declarative system configuration for **macOS** (nix-darwin) and **NixOS**, with a shared Home Manager layer in `common/`. Containers use **Podman** on both platforms (Podman Desktop via Homebrew on Mac, Flatpak on Linux). Linux GUI apps mostly come from Flathub via nix-flatpak.
 
 This is a customized fork by [Anand Magaji](https://magaji.dev).
 
@@ -75,7 +75,7 @@ flowchart LR
 | [`darwin/flake.nix`](darwin/flake.nix) | macOS output `amagaji-mac`; user hardcoded as `amagaji` |
 | [`linux/flake.nix`](linux/flake.nix) | NixOS output `tp14s`; user hardcoded as `amagaji` |
 | [`darwin/`](darwin/) | macOS system modules, nix-homebrew, Mac-only HM + dotfiles |
-| [`linux/`](linux/) | NixOS system modules, Podman + Flatpak Podman Desktop, Linux-only HM |
+| [`linux/`](linux/) | NixOS system modules, Podman, declarative Flatpaks, Linux-only HM |
 | [`common/`](common/) | Shared Home Manager: packages, shell, git, shared dotfiles |
 
 Username and hostnames are baked into each flake (no env overrides, no `--impure`).
@@ -94,7 +94,9 @@ nix-config/
 │   └── hosts/amagaji-mac/
 └── linux/                         # NixOS flake + modules + host
     ├── flake.nix
-    ├── home/                      # Linux-only HM (snr, fonts)
+    ├── flatpak.nix                # Declarative Flatpak GUI apps
+    ├── podman.nix                 # Podman (dockerCompat)
+    ├── home/                      # Linux-only HM (snr, fonts, GUI nixpkgs)
     └── hosts/tp14s/
 ```
 
@@ -122,7 +124,7 @@ Starship prompt uses a `λ` character for success/error.
 
 ### CLI (nixpkgs, both platforms)
 
-From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `eza`, `bat`, `rm-improved`, `gh`, `lazygit`, `nil`, `biome`, `nixfmt`, `yt-dlp`, `ffmpeg`. Zoxide is enabled via `programs.zoxide` in [`common/shell.nix`](common/shell.nix).
+From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `eza`, `bat`, `rm-improved`, `gh`, `lazygit`, `nil`, `biome`, `nixfmt`, `prettier`, `yt-dlp`, `ffmpeg`. Zoxide is enabled via `programs.zoxide` in [`common/shell.nix`](common/shell.nix).
 
 macOS host extra ([`darwin/hosts/amagaji-mac/configuration.nix`](darwin/hosts/amagaji-mac/configuration.nix)): `emacs-macport`, `graphite-cli`.
 
@@ -136,9 +138,17 @@ From [`darwin/homebrew.nix`](darwin/homebrew.nix):
 | Brews | `podman`, `prettier` |
 | MAS | WhatsApp, GoodNotes3 |
 
-### NixOS containers
+### NixOS containers & Flatpak
 
-Podman with `dockerCompat` (no Docker daemon) and Flatpak Podman Desktop (`io.podman_desktop.PodmanDesktop`) via [`linux/podman.nix`](linux/podman.nix).
+Podman with `dockerCompat` (no Docker daemon) via [`linux/podman.nix`](linux/podman.nix). GUI apps via declarative Flatpak ([`linux/flatpak.nix`](linux/flatpak.nix), nix-flatpak):
+
+| Kind | Packages |
+|------|----------|
+| Flatpak | Podman Desktop, VS Code, Zed, GitHub Desktop, GitKraken, Discord, Slack, Signal, ZapZap (WhatsApp), 1Password, Brave, Zen, Anki, Freeplane, Obsidian, JDownloader, Spotify, Flatseal |
+
+Linux nixpkgs GUI fallbacks ([`linux/home/packages.nix`](linux/home/packages.nix)): `code-cursor`, `ghostty`, `emacs` (no Flathub / Doom parity).
+
+Mac-only (not replicated): Hidden Bar, Raycast, Karabiner, BetterDisplay, CleanShot, Figma, Git Credential Manager, GoodNotes.
 
 ### Fonts
 
@@ -170,6 +180,8 @@ Shared configs live under [`common/dotfiles/`](common/dotfiles/) and are linked 
 | Shared configs | [`common/dotfiles/`](common/dotfiles/) |
 | Mac GUI apps | [`darwin/homebrew.nix`](darwin/homebrew.nix) |
 | Mac host extras | [`darwin/hosts/amagaji-mac/`](darwin/hosts/amagaji-mac/) |
+| Linux Flatpak GUI apps | [`linux/flatpak.nix`](linux/flatpak.nix) |
+| Linux nixpkgs GUI apps | [`linux/home/packages.nix`](linux/home/packages.nix) |
 | Linux host / hardware | [`linux/hosts/tp14s/`](linux/hosts/tp14s/) |
 
 ## Troubleshooting
