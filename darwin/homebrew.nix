@@ -78,10 +78,7 @@
       "prettier" # code formatter
     ];
 
-    taps = [
-      # --- Window management ---
-      "nikitabobko/tap" # Aerospace tap
-    ];
+    taps = [ ];
 
     masApps = {
       # --- Mac App Store ---
