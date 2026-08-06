@@ -22,16 +22,20 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 
 # 2) Optional but recommended before first switch: back up conflicting paths
 #    e.g. ~/.config/{doom,nvim,zed,gh,lazygit,karabiner,fish} ~/.bashrc ~/.bash_profile ~/.profile
+#    Conflicting files are renamed with a .hm-backup suffix on switch.
 
-# 3) Apply the system + Home Manager config
-darwin-rebuild switch --flake ~/Documents/GitHub/nix-config/darwin#amagaji-mac
+# 3) Ensure HM profiles dir, then apply system + Home Manager
+mkdir -p ~/.local/state/nix/profiles
+sudo darwin-rebuild switch --flake ~/Documents/GitHub/nix-config/darwin#amagaji-mac
 
-# 4) Reload the shell (or open a new terminal)
+# 4) Reload the shell. Fully quit GUI apps (Cursor, Terminal) once so they pick
+#    up the Nix PATH that includes /etc/profiles/per-user/$USER/bin (HM packages
+#    like starship).
 exec zsh
 # later rebuilds: sdr
 ```
 
-Homebrew is managed by nix-homebrew / nix-darwin (migrates an existing install if present). The Darwin flake sets `nix.enable = false` so the Determinate installer owns Nix.
+Homebrew is managed by nix-homebrew / nix-darwin (migrates an existing install if present). The Darwin flake sets `nix.enable = false` so the Determinate installer owns Nix. Home Manager needs `~/.local/state/nix/profiles` when Determinate has not created `/nix/var/nix/profiles/per-user/$USER`.
 
 ### NixOS
 
@@ -52,8 +56,7 @@ exec zsh
 ### After the first switch
 
 - **Git SSH signing:** run `gss` (or `ensure-git-ssh-signing`) if needed; interactive zsh also auto-runs it when the signing key/marker is missing.
-- **mise:** activation installs global tools (`node@lts`, `bun@latest`, `uv@latest`, `rust@stable`).
-- **Doom Emacs:** once `emacs` is on your `PATH` and `~/.config/doom` is linked, the next switch runs a one-shot install into `~/.config/emacs`.
+- **Doom Emacs (macOS):** `emacs-macport` puts `emacs` on your `PATH`; once `~/.config/doom` is linked, the next switch runs a one-shot install into `~/.config/emacs`.
 
 ## How it works
 
@@ -73,11 +76,11 @@ flowchart LR
 | [`linux/flake.nix`](linux/flake.nix) | NixOS output `tp14s`; user hardcoded as `amagaji` |
 | [`darwin/`](darwin/) | macOS system modules, nix-homebrew, Mac-only HM + dotfiles |
 | [`linux/`](linux/) | NixOS system modules, Podman + Flatpak Podman Desktop, Linux-only HM |
-| [`common/`](common/) | Shared Home Manager: packages, shell, git, mise, shared dotfiles |
+| [`common/`](common/) | Shared Home Manager: packages, shell, git, shared dotfiles |
 
 Username and hostnames are baked into each flake (no env overrides, no `--impure`).
 
-Dotfiles under [`common/dotfiles/`](common/dotfiles/) (and Mac-only under [`darwin/dotfiles/`](darwin/dotfiles/)) are linked with `mkOutOfStoreSymlink`, so edits in the repo apply immediately. Shell, git, mise, and Starship are native Home Manager options (a rebuild is required for those).
+Dotfiles under [`common/dotfiles/`](common/dotfiles/) (and Mac-only under [`darwin/dotfiles/`](darwin/dotfiles/)) are linked with `mkOutOfStoreSymlink`, so edits in the repo apply immediately. Shell, git, and Starship are native Home Manager options (a rebuild is required for those).
 
 ## Repository layout
 
@@ -119,13 +122,9 @@ Starship prompt uses a `λ` character for success/error.
 
 ### CLI (nixpkgs, both platforms)
 
-From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `zoxide`, `eza`, `bat`, `rm-improved`, `gh`, `mise`, `nil`, `biome`, `nixfmt-rfc-style`, `yt-dlp`, `ffmpeg`.
+From [`common/packages.nix`](common/packages.nix): `curl`, `neovim`, `tmux`, `htop`, `btop`, `tree`, `ripgrep`, `eza`, `bat`, `rm-improved`, `gh`, `lazygit`, `nil`, `biome`, `nixfmt-rfc-style`, `yt-dlp`, `ffmpeg`. Zoxide is enabled via `programs.zoxide` in [`common/shell.nix`](common/shell.nix).
 
-macOS host extra ([`darwin/hosts/amagaji-mac/configuration.nix`](darwin/hosts/amagaji-mac/configuration.nix)): `graphite-cli`.
-
-### mise globals
-
-`node@lts`, `bun@latest`, `uv@latest`, `rust@stable`.
+macOS host extra ([`darwin/hosts/amagaji-mac/configuration.nix`](darwin/hosts/amagaji-mac/configuration.nix)): `emacs-macport`, `graphite-cli`.
 
 ### macOS Homebrew
 
@@ -135,7 +134,6 @@ From [`darwin/homebrew.nix`](darwin/homebrew.nix):
 |------|----------|
 | Casks | Hidden Bar, Raycast, Karabiner-Elements, BetterDisplay, CleanShot, Figma beta, Cursor, Podman Desktop, Ghostty, VS Code, Zed, GitHub Desktop, Git Credential Manager, Discord, Slack beta, Signal, 1Password, Brave, Zen, Anki, Freeplane, Obsidian, JDownloader, Spotify |
 | Brews | `podman`, `prettier` |
-| Tap | `nikitabobko/tap` (Aerospace; cask commented out) |
 | MAS | WhatsApp, GoodNotes3 |
 
 ### NixOS containers
@@ -171,7 +169,6 @@ Shared configs live under [`common/dotfiles/`](common/dotfiles/) and are linked 
 | CLI tools | [`common/packages.nix`](common/packages.nix) |
 | Shared configs | [`common/dotfiles/`](common/dotfiles/) |
 | Mac GUI apps | [`darwin/homebrew.nix`](darwin/homebrew.nix) |
-| Dev runtimes (mise) | [`common/mise.nix`](common/mise.nix) |
 | Mac host extras | [`darwin/hosts/amagaji-mac/`](darwin/hosts/amagaji-mac/) |
 | Linux host / hardware | [`linux/hosts/tp14s/`](linux/hosts/tp14s/) |
 
