@@ -9,6 +9,7 @@
   imports = [
     ./settings.nix
     ./podman.nix
+    ./flatpak.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
