@@ -8,7 +8,7 @@
     stateVersion = 6;
     configurationRevision = self.rev or self.dirtyRev or null;
 
-    startup.chime = false;
+    startup.chime = true;
 
     defaults = {
       loginwindow = {
