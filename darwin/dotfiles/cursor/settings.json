@@ -1,5 +1,6 @@
 {
     "window.autoDetectColorScheme": true,
     "editor.formatOnSave": true,
-    "git.blame.editorDecoration.enabled": true
+    "git.blame.editorDecoration.enabled": true,
+    "cursor.composer.conversationDensity": "detailed"
 }
