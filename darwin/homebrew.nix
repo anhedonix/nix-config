@@ -88,6 +88,7 @@
       # --- Mac App Store ---
       "WhatsApp" = 310633997; # messaging
       "GoodNotes3" = 1444383602; # handwriting notes
+      "Canva" = 897446215; # design tool
       # "Tailscale" = 1475387142; # mesh VPN
     };
   };
