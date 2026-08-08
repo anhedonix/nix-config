@@ -9,10 +9,15 @@
       neovim # modal text editor
       tmux # terminal multiplexer
       joplin-desktop # note-taking app
+      jetbrains.goland
+      jetbrains-toolbox
 
       # --- System monitors ---
       htop # interactive process viewer
       btop # modern resource monitor
+
+      # --- Package management ---
+      bun
 
       # --- Files & search ---
       tree # directory tree listing
@@ -27,6 +32,7 @@
 
       # --- Language tooling ---
       nil # Nix language server
+      nixd # Nix language server
       biome # JS/TS linter and formatter
       nixfmt # Nix formatter (RFC style)
       prettier # code formatter (parity with Mac Homebrew)
@@ -34,7 +40,7 @@
       # --- Media ---
       yt-dlp # video/audio downloader
       ffmpeg # media conversion
-      # ollama # local LLM runtime
+      ollama # local LLM runtime
     ];
   };
 }
