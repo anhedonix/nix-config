@@ -6,6 +6,7 @@ in
 {
   xdg.configFile = {
     "karabiner/karabiner.json".source = link "karabiner/karabiner.json";
+    "karabiner/karabiner.json".force = true;
     "containers/containers.conf".source = link "containers/containers.conf";
   };
 
